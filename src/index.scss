@@ -1,0 +1,275 @@
+//--------
+// A SASS mixin that allows you to create columns of varying widths on top of a 12 column grid system.
+// See: https://github.com/Xaxis/fluid-grid-react
+
+.FluidGrid {
+  background-color: red !important;
+}
+
+//--------
+// Fluid-grid configuration
+$fg-columns: 1;
+$fg-modifier: 0;
+$fg-breakpoint: 0;
+$fg-fixed-gutter: 20px;
+$fg-fluid-gutter: 2.0;
+$fg-gutter-type: 'fixed';
+$fg-no-gutter: false;
+$fg-grid-count: 12;
+$fg-css-grid: false;
+$fg-grid-list: false;
+$fg-class-prefix: "fg-";
+$fg-class-breakpoint: 1740px;
+
+
+//--------
+// Fluid-grid mixin
+//
+// @cols              Number of columns in a row
+// @mod               Width in terms of column grid ratio
+// $break             Screen width at which to trigger breakpoint/stacking
+// @fixed-gutter      Fixed gutter pixel width default
+// @fluid-gutter      Fluid gutter percentage width default
+// @gutter-type       Type of gutter to use ('fixed' or 'fluid') default
+// @no-gutter         Boolean value that specifies whether a gutter is used
+// @css-grid          Boolean value that enables the use of CSS Grid
+// @grid-count        Base number of grid columns that defines the grid system
+// @grid-items        A list specifying grid items start/end grid line modifiers (when using CSS Grid)
+@mixin fg-col(
+  $cols: $fg-columns,
+  $mod: $fg-modifier,
+  $break: $fg-breakpoint,
+  $fixed-gutter: $fg-fixed-gutter,
+  $fluid-gutter: $fg-fluid-gutter,
+  $gutter-type: $fg-gutter-type,
+  $no-gutter: $fg-no-gutter,
+  $grid-count: $fg-grid-count,
+  $css-grid: $fg-css-grid,
+  $grid-list: $fg-grid-list
+) {
+
+
+  // Default column styling
+  & {
+    box-sizing: border-box;
+    position: relative;
+    float: left;
+  }
+  &:before,
+  &:after {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+  &:first-child {
+    margin-left: 0;
+  }
+
+
+  // Fixed width gutter ENABLED default gutter width
+  @if $gutter-type == 'fixed' {
+    margin-left: $fixed-gutter;
+  }
+
+    // Fixed width gutter DISABLED default gutter width
+  @else if $gutter-type == 'fluid' {
+    margin-left: #{$fluid-gutter + '%'};
+  }
+
+
+  // Equal width columns
+  @if $mod == 0 {
+
+    // Fixed width gutter ENABLED
+    @if $gutter-type == 'fixed' {
+
+      // Gutters are OFF
+      @if $no-gutter == true {
+        width: -webkit-calc((100% / #{$cols}));
+        width: calc((100% / #{$cols}));
+        margin-left: 0;
+      }
+
+        // Gutters are ON
+      @else {
+        width: -webkit-calc(((100% / #{$cols}) - #{$fixed-gutter}) + (#{$fixed-gutter / $cols}));
+        width: calc(((100% / #{$cols}) - #{$fixed-gutter}) + (#{$fixed-gutter / $cols}));
+      }
+    }
+
+      // Fluid width gutter DISABLED
+    @else if $gutter-type == 'fluid' {
+      $ucw: (100 / $cols);
+      $cw: 0;
+      @if $cols == 1 or $no-gutter == true {
+        $cw: $ucw;
+        margin-left: 0;
+      } @else {
+        $cw: $ucw - $fluid-gutter + ($fluid-gutter / $cols);
+      }
+      width: #{$cw + '%'};
+    }
+  }
+
+
+    // Variable column width columns
+  @else if $mod {
+    $mw: 0;
+
+    // Set width fraction based on modifier
+    @for $i from 1 through $grid-count {
+      @if $mod == $i {
+        $mw: ($i / $grid-count) * 100;
+      }
+    }
+
+    // Fixed width gutter ENABLED
+    @if $gutter-type == 'fixed' {
+
+      // Gutters are OFF
+      @if $no-gutter == true or $mod == $grid-count {
+        width: -webkit-calc(#{$mw + '%'});
+        width: calc(#{$mw + '%'});
+        margin-left: 0;
+      }
+
+        // Gutters are ON
+      @else {
+        width: -webkit-calc((#{$mw + '%'} - #{$fixed-gutter}) + (#{$fixed-gutter / $cols}));
+        width: calc((#{$mw + '%'} - #{$fixed-gutter}) + (#{$fixed-gutter / $cols}));
+      }
+    }
+
+      // Fluid width gutter enabled
+    @else if $gutter-type == 'fluid' {
+      $ucw: $mw / 100;
+      $cw: 0;
+      @if $mod == $grid-count or $no-gutter == true {
+        $cw: $ucw * 100;
+        margin-left: 0;
+      } @else {
+        $cw: ($ucw * 100) - $fluid-gutter + ($fluid-gutter / $cols);
+      }
+      width: #{$cw + '%'};
+    }
+  }
+
+
+  // CSS Grid
+  @if $css-grid == true {
+    & {
+      float: none;
+      margin-left: 0 !important;
+      width: auto !important;
+      display: grid;
+      grid-template-columns: repeat(#{$cols}, 1fr);
+    }
+    &:before,
+    &:after {
+      display: none;
+    }
+    @if $no-gutter == false {
+      grid-column-gap: $fixed-gutter;
+      grid-row-gap: $fixed-gutter;
+    }
+    @if type-of($grid-list) == 'map' {
+      @each $elm-number, $item in $grid-list {
+        $start: nth($item, 1);
+        $end: nth($item, 2);
+        & > :nth-child(#{$elm-number}) {
+          grid-column-start: $start;
+          grid-column-end: $end;
+        }
+      }
+    }
+  }
+
+
+  // Add breakpoint when active
+  @if $break > 0 {
+    &, &:first-child {
+      @media only all and (max-width: $break) {
+        margin-left: 0;
+        width: 100%;
+        display: block !important;
+        @if $css-grid {
+          & > * {
+            @content;
+          }
+        } @else {
+          @content;
+        }
+      }
+    }
+  }
+}
+
+
+//--------
+// Fluid-grid base class generator
+@for $i from 1 through $fg-grid-count {
+
+  // Generate column classes
+  #{"."}#{$fg-class-prefix}col:first-child:nth-last-child(#{$i}),
+  #{"."}#{$fg-class-prefix}col:first-child:nth-last-child(#{$i}) ~ #{"."}#{$fg-class-prefix}col {
+
+    // Equal width column sizes
+    &:not(#{"."}#{$fg-class-prefix}no-gutter) {
+      @include fg-col($cols:$i);
+    }
+    &#{"."}#{$fg-class-prefix}no-gutter {
+      @include fg-col($cols:$i, $no-gutter: true);
+    }
+
+    // Grid column sizes
+    @for $n from 1 through $fg-grid-count {
+      $col-selector: "&" + "." + $fg-class-prefix + "col-" + $n;
+      #{$col-selector} {
+        &:not(#{"."}#{$fg-class-prefix}no-gutter) {
+          @include fg-col($cols:$i, $mod:$n, $no-gutter: false);
+        }
+        &#{"."}#{$fg-class-prefix}no-gutter {
+          @include fg-col($cols:$i, $mod:$n, $no-gutter: true);
+        }
+      }
+    }
+  }
+
+  // Breakpoint classes (based on default break width)
+  #{"."}#{$fg-class-prefix}break-#{$i} {
+    $bw: ($i / $fg-grid-count) * $fg-class-breakpoint;
+    @media only all and (max-width: $bw) {
+      margin-left: 0 !important;
+      width: 100% !important;
+      display: block !important;
+    }
+  }
+
+  // Grid classes
+  #{"."}#{$fg-class-prefix}grid-#{$i} {
+    &:not(#{"."}#{$fg-class-prefix}no-gutter) {
+      @include fg-col($cols:$i, $css-grid: true);
+    }
+    &#{"."}#{$fg-class-prefix}no-gutter {
+      @include fg-col($cols:$i, $css-grid: true, $no-gutter: true);
+    }
+  }
+  @for $n from 1 through $fg-grid-count {
+    #{"."}#{$fg-class-prefix}item-#{$n}-#{$i} {
+      grid-column-start: $n;
+      grid-column-end: $i;
+    }
+  }
+  #{"."}#{$fg-class-prefix}break-#{$i} {
+    & {
+      $bw: ($i / $fg-grid-count) * $fg-class-breakpoint;
+      @media only all and (max-width: $bw) {
+        margin-left: 0;
+        width: 100%;
+        display: block;
+      }
+    }
+  }
+}
