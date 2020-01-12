@@ -1,6 +1,3 @@
-.FluidGrid {
-  background-color: red !important; }
-
 .fg-col:first-child:nth-last-child(1):not(.fg-no-gutter),
 .fg-col:first-child:nth-last-child(1) ~ .fg-col:not(.fg-no-gutter) {
   margin-left: 20px;
@@ -8364,3 +8361,6 @@
     margin-left: 0;
     width: 100%;
     display: block; } }
+
+.fg-container {
+  border: 1px solid red; }

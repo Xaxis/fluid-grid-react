@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "watch": {
+    "build": "src/*.*"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/node-sass/bin/node-sass ./src/index.scss -o css && ./node_modules/.bin/babel src --out-file ./index.js"
+    "build": "./node_modules/node-sass/bin/node-sass ./src/index.scss -o css && ./node_modules/.bin/babel src --out-file ./index.js",
+    "watch": "npm-watch"
   },
   "repository": {
     "type": "git",
@@ -27,6 +31,7 @@
     "@babel/preset-env": "^7.8.0",
     "@babel/preset-react": "^7.8.0",
     "node-sass": "^4.13.0",
+    "npm-watch": "^0.6.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   }

@@ -2,9 +2,6 @@
 // A SASS mixin that allows you to create columns of varying widths on top of a 12 column grid system.
 // See: https://github.com/Xaxis/fluid-grid-react
 
-.FluidGrid {
-  background-color: red !important;
-}
 
 //--------
 // Fluid-grid configuration
@@ -272,4 +269,10 @@ $fg-class-breakpoint: 1740px;
       }
     }
   }
+}
+
+
+
+.fg-container {
+  border: 1px solid red;
 }
